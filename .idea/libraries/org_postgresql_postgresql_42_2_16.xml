@@ -6,6 +6,9 @@
       <root url="jar://$PROJECT_DIR$/lib/checker-qual-3.5.0.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/postgresql-42.2.16-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/checker-qual-3.5.0-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

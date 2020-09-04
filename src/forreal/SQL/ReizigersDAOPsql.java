@@ -1,23 +1,26 @@
 package forreal.SQL;
 
+import forreal.DAO.AdresDAO;
 import forreal.DAO.ReizigersDAO;
+import forreal.Domein.Adres;
 import forreal.Domein.Reiziger;
 import forreal.Utils;
-import forreal.Utils.*;
+
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
-public class ReizigersDAOPsql implements ReizigersDAO {
+public class ReizigersDAOPsql implements ReizigersDAO{
     private Connection conn;
+    private AdresDAO adao;
 
     public ReizigersDAOPsql(Connection conn){
         this.conn = conn;
+        this.adao = new AdresDAOPsql(conn);
     }
 
     public Boolean save(Reiziger reiziger) throws SQLException {
         try{
-            // mstel de query samen
+            // stel de query samen
             String Query = "INSERT INTO reiziger(reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum) " +
                     "VALUES (?, ?, ?, ?, ?)";
 
@@ -34,6 +37,16 @@ public class ReizigersDAOPsql implements ReizigersDAO {
             // Stuur de query naar de DB
             pst.executeUpdate();
 
+            if(reiziger.getAdres() != null){
+                if(adao.findById(reiziger.getAdres().getAdres_id()) != null){
+
+                    adao.update(reiziger.getAdres());
+                }else{
+
+                    adao.save(reiziger.getAdres());
+                }
+            }
+
             // sluit alles netjes af
 
             pst.close();
@@ -41,11 +54,8 @@ public class ReizigersDAOPsql implements ReizigersDAO {
             return true;
 
         }catch(SQLException sql){
-            System.err.println("[SQLSAVEError!] Query could not be completed" + sql.getMessage());
-            sql.printStackTrace();
-            return false;
+            return Utils.errorHandler(sql, conn);
         }
-
     }
     public Boolean update(Reiziger reiziger){
         try{
@@ -53,9 +63,9 @@ public class ReizigersDAOPsql implements ReizigersDAO {
              String Query = "UPDATE " +
                                 "reiziger " +
                             "SET " +
-                                "voorletters = ? " +
-                                "tussenvoegsel = ? " +
-                                "achternaam = ? " +
+                                "voorletters = ?, " +
+                                "tussenvoegsel = ?, " +
+                                "achternaam = ?, " +
                                 "geboortedatum = ? " +
                             "WHERE " +
                                 "reiziger_id = ? ";
@@ -73,25 +83,34 @@ public class ReizigersDAOPsql implements ReizigersDAO {
             // Stuur de query naar de DB
             pst.executeUpdate();
 
+            if(reiziger.getAdres() != null){
+                if(adao.findById(reiziger.getAdres().getAdres_id()).getAdres_id() != 0){
+                    adao.update(reiziger.getAdres());
+                }else{
+                    adao.save(reiziger.getAdres());
+                }
+            }
             // sluit alles netjes af
 
             pst.close();
             return true;
-        }catch(SQLException sql){
-            System.err.println("[SQLUPError!] Query could not be completed " + sql.getMessage());
-            return false;
+        }catch(SQLException sql) {
+            return Utils.errorHandler(sql, conn);
         }
-
     }
+
     public Boolean delete(Reiziger reiziger){
         try{
-            // mstel de query samen
+            // stel de query samen
              String Query = "DELETE FROM " +
                                 "reiziger " +
                             "WHERE " +
                                 "reiziger_id = ?";
 
             // maak een statement
+            if(reiziger.getAdres() != null){
+                adao.delete(reiziger.getAdres());
+            }
             PreparedStatement pst = conn.prepareStatement(Query);
 
             // voeg statement variabelen toe
@@ -101,21 +120,19 @@ public class ReizigersDAOPsql implements ReizigersDAO {
             pst.executeUpdate();
 
             // sluit alles netjes af
-
             pst.close();
 
+            // return boolean waarde
             return true;
             
         }catch(SQLException sql){
-            System.err.println("[SQLDELError!] Query could not be completed " + sql.getMessage());
-            return false;
+            return Utils.errorHandler(sql, conn);
         }
-
     }
     public Reiziger findById(int idx){
         try{
             // mstel de query samen
-             String Query = "SELECT FROM " +
+             String Query = "SELECT * FROM " +
                                 "reiziger " +
                             "WHERE " +
                                 "reiziger_id=? ";
@@ -128,15 +145,26 @@ public class ReizigersDAOPsql implements ReizigersDAO {
             // Stuur de query naar de DB
             ResultSet rs = pst.executeQuery();
 
+            // pak het resultaat uit
             Reiziger resultaat = Utils.returnSingleReiziger(rs);
+            Adres adres = adao.findByReiziger(resultaat);
+
+            if(adres.getAdres_id() != 0){
+                resultaat.setAdres(adres);
+            }
+
             // sluit alles netjes af
             rs.close();
             pst.close();
-            
+
+            // retourneer resultaat
             return resultaat;
             
         }catch(SQLException sql){
-            System.err.println("[SQLError!] Query could not be completed" + sql.getMessage());
+            // geef error terug in error console
+            Utils.errorHandler(sql, conn);
+
+            // return false
             return null;
         }
 
@@ -154,10 +182,17 @@ public class ReizigersDAOPsql implements ReizigersDAO {
 
             // voeg statement variabelen toe
             pst.setDate(1, Date.valueOf(datum));
+
             // Stuur de query naar de DB
             ResultSet rs = pst.executeQuery();
             // pak resultaat uit
             List<Reiziger> resultaat = Utils.returnMultiReiziger(rs);
+            for(Reiziger reiziger : resultaat){
+                Adres adres = adao.findByReiziger(reiziger);
+                if(adres.getAdres_id() != 0){
+                    reiziger.setAdres(adres);
+                }
+            }
             // sluit alles netjes af
             rs.close();
             pst.close();
@@ -165,7 +200,10 @@ public class ReizigersDAOPsql implements ReizigersDAO {
             return resultaat;
 
         }catch(SQLException sql){
-            System.err.println("[SQLError!] Query could not be completed" + sql.getMessage());
+            // geef error terug in error console
+            Utils.errorHandler(sql, conn);
+
+            // return false
             return null;
         }
     }
@@ -182,6 +220,12 @@ public class ReizigersDAOPsql implements ReizigersDAO {
             //pak resultaat uit
             List<Reiziger> resultaat = Utils.returnMultiReiziger(rs);
 
+            for(Reiziger reiziger : resultaat){
+                Adres adres = adao.findByReiziger(reiziger);
+                if(adres.getAdres_id() != 0){
+                    reiziger.setAdres(adres);
+                }
+            }
             // sluit alles netjes af
             rs.close();
             st.close();
@@ -189,7 +233,10 @@ public class ReizigersDAOPsql implements ReizigersDAO {
             return resultaat;
 
         }catch(SQLException sql){
-            System.err.println("[SQLError!] Query could not be completed" + sql.getMessage());
+            // geef error terug in error console
+            Utils.errorHandler(sql, conn);
+
+            // return false
             return null;
         }
     }

@@ -1,7 +1,11 @@
 package forreal;
 
+
+import forreal.DAO.AdresDAO;
 import forreal.DAO.ReizigersDAO;
+import forreal.Domein.Adres;
 import forreal.Domein.Reiziger;
+import forreal.SQL.AdresDAOPsql;
 import forreal.SQL.ReizigersDAOPsql;
 
 import java.sql.*;
@@ -17,9 +21,12 @@ public class Main {
             Connection conn = getConnection("localhost", "ovchip");
 
             // maak het DAO object en voeg de connectie toe
+            AdresDAOPsql adaop = new AdresDAOPsql(conn);
             ReizigersDAOPsql rdaop = new ReizigersDAOPsql(conn);
 
+
             testReizigerDAO(rdaop);
+            testAdresDAO(adaop);
             // sluit de verbinding
             closeConnection(conn);
 
@@ -50,12 +57,99 @@ public class Main {
 
         // Maak een nieuwe reiziger aan en persisteer deze in de database
         String gbdatum = "1981-03-14";
-        Reiziger sietske = new Reiziger(84, "S", "", "Boers", gbdatum);
+        Reiziger sietske = new Reiziger();
+        sietske.setId(11);
+        sietske.setVoorletters("S");
+        sietske.setTussenvoegsel("");
+        sietske.setAchternaam("Boers");
+        sietske.setGeboortedatum(gbdatum);
         System.out.print("[Test] Eerst " + reizigers.size() + " reizigers, na ReizigerDAO.save() ");
         rdao.save(sietske);
         reizigers = rdao.findAll();
-        System.out.println(reizigers.size() + " reizigers\n");
+        System.out.println(reizigers.size() + " reizigers");
+        System.out.println("[Test] ReizigerDAO.findAll() geeft de volgende reizigers:");
+        for (Reiziger r : reizigers) {
+            System.out.println(r);
+        }
 
         // Voeg aanvullende tests van de ontbrekende CRUD-operaties in.
+        System.out.print("[Test] Eerst \n" + sietske.toString() + "\n na ReizigerDAO.update() \n");
+        String gbdatum2 = "1981-03-12";
+        sietske.setGeboortedatum(gbdatum2);
+
+        rdao.update(sietske);
+        Reiziger sietskeUpdated = rdao.findById(sietske.getId());
+        System.out.println(sietskeUpdated.toString());
+
+        System.out.print("[Test] Eerst " + reizigers.size() + " reizigers, na ReizigerDAO.delete() ");
+        rdao.delete(sietske);
+        reizigers = rdao.findAll();
+        System.out.println(reizigers.size() + " reizigers\n");
+    }
+
+    private static void testAdresDAO(AdresDAO adao, ReizigersDAO rdao) throws SQLException {
+
+        System.out.println("\n---------- Test AdresDAO -------------");
+        System.out.println( );
+        List<Adres> adressen = adao.findAll();
+        System.out.println("[Test] ADAO.findAll() geeft de volgende adressen:");
+        for (Adres adres1 : adressen) {
+            System.out.println(adres1.toString());
+        }
+
+        // Maak een nieuwe adres aan en persisteer deze in de database
+        Adres adres = new Adres();
+        adres.setAdres_id(11);
+        adres.setWoonplaats("Amersfoort");
+        adres.setPostcode("3811 JH");
+        adres.setStraat("Achter de kamp");
+        adres.setHuisnummer("136");
+
+        String gbdatum = "1981-03-14";
+        Reiziger sietske = new Reiziger();
+        sietske.setId(11);
+        sietske.setVoorletters("S");
+        sietske.setTussenvoegsel("");
+        sietske.setAchternaam("Boers");
+        sietske.setGeboortedatum(gbdatum);
+        sietske.setAdres(adres);
+        adres.setReiziger(sietske);
+
+        System.out.println();
+        System.out.print("[Test] Eerst " + adressen.size() + " adressen, na AdresDAO.save() ");
+        adao.save(adres);
+        adressen = adao.findAll();
+        System.out.println(adressen.size());
+
+        System.out.println("[Test] ADAO.findAll() geeft de volgende adressen:");
+        for (Adres adres1 : adressen) {
+            System.out.println(adres1.toString());
+        }
+        System.out.println();
+        System.out.print("[Test] Eerst \n" + adres.toString() + "\n na AdresDAO.update(): ");
+
+
+        adao.update(adres);
+
+        Adres AdresNieuw = adao.findById(adres.getAdres_id());
+        System.out.println(AdresNieuw.toString());
+
+        adressen = adao.findAll();
+        System.out.println(adressen.size());
+        System.out.println("[Test] ADAO.findAll() geeft de volgende adressen:");
+        for (Adres adres1 : adressen) {
+            System.out.println(adres1.toString());
+        }
+        System.out.println();
+        System.out.print("[Test] Eerst " + adressen.size() + " adressen, na AdresDAO.delete(): ");
+        adao.delete(adres);
+        adressen = adao.findAll();
+        System.out.println(adressen.size());
+
+        System.out.println("[Test] ADAO.findAll() geeft de volgende adressen:");
+        for (Adres adres1 : adressen) {
+            System.out.println(adres1.toString());
+        }
+
     }
 }

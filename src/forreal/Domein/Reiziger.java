@@ -1,8 +1,5 @@
 package forreal.Domein;
 
-import forreal.SQL.ReizigersDAOPsql;
-
-import java.sql.Date;
 import java.time.LocalDate;
 
 
@@ -12,13 +9,17 @@ public class Reiziger {
     private String tussenvoegsel;
     private String achternaam;
     private LocalDate geboortedatum;
+    private Adres adres;
 
-    public Reiziger(int id, String voorletters, String tussenvoegsel, String achternaam, String geboortedatum) {
-        this.id = id;
-        this.voorletters = voorletters;
-        this.tussenvoegsel = tussenvoegsel;
-        this.achternaam = achternaam;
-        this.geboortedatum = LocalDate.parse(geboortedatum);
+    public Reiziger() {
+    }
+
+    public Adres getAdres() {
+        return this.adres;
+    }
+
+    public void setAdres(Adres adres) {
+        this.adres = adres;
     }
 
     public int getId() {
@@ -62,10 +63,30 @@ public class Reiziger {
     }
 
     public String getNaam(){
-        return this.voorletters + " " + this.tussenvoegsel + " " + this.achternaam;
+        return this.voorletters +(tussenvoegsel != null ? " " + this.tussenvoegsel + " " : " " )+ this.achternaam;
     }
 
     public String toString(){
-        return "Reiziger: " + getId() + " met naam: " + getNaam() + " is geboren op: " + (this.geboortedatum != null ? this.geboortedatum : "not defined");
+        StringBuilder str = new StringBuilder();
+
+        str.append("Reiziger #");
+        str.append(getId());
+        str.append(" met naam: ");
+        str.append(getNaam());
+        str.append(",");
+        str.append(" is geboren op: ");
+        str.append(getGeboortedatum());
+        if(adres != null){
+            str.append(" en woont op: ");
+            str.append(getAdres().getStraat());
+            str.append(getAdres().getHuisnummer());
+            str.append(", ");
+            str.append(getAdres().getPostcode());
+            str.append(" ");
+            str.append(getAdres().getWoonplaats());
+            str.append(".");
+        }
+
+        return str.toString();
     }
 }
