@@ -7,7 +7,7 @@ public class Adres {
     private String straat;
     private String woonplaats;
     private int reiziger_id;
-    private Reiziger reiziger;
+
 
     public Adres() {
     }
@@ -15,15 +15,15 @@ public class Adres {
     public int getAdres_id() {
         return adres_id;
     }
+//
+//    public Reiziger getReiziger() {
+//        return reiziger;
+//    }
 
-    public Reiziger getReiziger() {
-        return reiziger;
-    }
-
-    public void setReiziger(Reiziger reiziger) {
-        this.reiziger_id = reiziger.getId();
-        this.reiziger = reiziger;
-    }
+//    public void setReiziger(Reiziger reiziger) {
+//        this.reiziger_id = reiziger.getId();
+//        this.reiziger = reiziger;
+//    }
 
     public void setAdres_id(int adres_id) {
         this.adres_id = adres_id;
@@ -83,13 +83,13 @@ public class Adres {
         str.append(" ");
         str.append(getWoonplaats());
 
-        if(reiziger != null){
-            str.append(" en wordt bewoond door: ");
-            str.append(getReiziger().getNaam());
-            str.append(" en is geboren op: ");
-            str.append(getReiziger().getGeboortedatum());
-            str.append(".");
-        }
+//        if(reiziger != null){
+//            str.append(" en wordt bewoond door: ");
+//            str.append(getReiziger().getNaam());
+//            str.append(" en is geboren op: ");
+//            str.append(getReiziger().getGeboortedatum());
+//            str.append(".");
+//        }
 
         return str.toString();
     }
