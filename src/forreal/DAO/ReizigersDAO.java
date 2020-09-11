@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface ReizigersDAO {
     Boolean save(Reiziger reiziger) throws SQLException;
-    Boolean update(Reiziger reiziger);
-    Boolean delete(Reiziger reiziger);
-    Reiziger findById(int id);
-    List<Reiziger> findByGbdatum(String datum);
-    List<Reiziger> findAll();
+    Boolean update(Reiziger reiziger) throws SQLException;
+    Boolean delete(Reiziger reiziger) throws SQLException;
+    Reiziger findById(int id) throws SQLException;
+    List<Reiziger> findByGbdatum(String datum) throws SQLException;
+    List<Reiziger> findAll() throws SQLException;
 }

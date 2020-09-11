@@ -8,22 +8,36 @@ public class Adres {
     private String woonplaats;
     private int reiziger_id;
 
+    private Reiziger reiziger;
 
-    public Adres() {
+    public Adres(int adres_id, String postcode, String huisnummer, String straat, String woonplaats, int reiziger_id) {
+        this.adres_id = adres_id;
+        this.postcode = postcode;
+        this.huisnummer = huisnummer;
+        this.straat = straat;
+        this.woonplaats = woonplaats;
+        this.reiziger_id = reiziger_id;
     }
 
     public int getAdres_id() {
         return adres_id;
     }
-//
-//    public Reiziger getReiziger() {
-//        return reiziger;
-//    }
 
-//    public void setReiziger(Reiziger reiziger) {
-//        this.reiziger_id = reiziger.getId();
-//        this.reiziger = reiziger;
-//    }
+    public Reiziger getReiziger() {
+        return reiziger;
+    }
+
+    public void setReiziger(Reiziger reiziger) {
+        this.reiziger = reiziger;
+    }
+
+    public int getReiziger_id() {
+        return reiziger_id;
+    }
+
+    public void setReiziger_id(int reiziger_id) {
+        this.reiziger_id = reiziger_id;
+    }
 
     public void setAdres_id(int adres_id) {
         this.adres_id = adres_id;
@@ -61,13 +75,6 @@ public class Adres {
         this.woonplaats = woonplaats;
     }
 
-    public int getReiziger_id() {
-        return reiziger_id;
-    }
-
-    public void setReiziger_id(int reiziger_id) {
-        this.reiziger_id = reiziger_id;
-    }
 
     @Override
     public String toString() {
@@ -83,13 +90,13 @@ public class Adres {
         str.append(" ");
         str.append(getWoonplaats());
 
-//        if(reiziger != null){
-//            str.append(" en wordt bewoond door: ");
-//            str.append(getReiziger().getNaam());
-//            str.append(" en is geboren op: ");
-//            str.append(getReiziger().getGeboortedatum());
-//            str.append(".");
-//        }
+        if(reiziger != null){
+            str.append(" en wordt bewoond door: ");
+            str.append(getReiziger().getNaam());
+            str.append(" en is geboren op: ");
+            str.append(getReiziger().getGeboortedatum());
+            str.append(".");
+        }
 
         return str.toString();
     }

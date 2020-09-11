@@ -1,6 +1,8 @@
 package forreal.Domein;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Reiziger {
@@ -10,9 +12,27 @@ public class Reiziger {
     private String achternaam;
     private LocalDate geboortedatum;
     private Adres adres;
+    private List<OV_Chipkaart> ovkaarten;
 
-    public Reiziger() {
+    public Reiziger(int id, String voorletters, String tussenvoegsel, String achternaam, LocalDate geboortedatum) {
+        this.id = id;
+        this.voorletters = voorletters;
+        this.tussenvoegsel = tussenvoegsel;
+        this.achternaam = achternaam;
+        this.geboortedatum = geboortedatum;
+        this.ovkaarten = new ArrayList<>();
     }
+
+    public List<OV_Chipkaart> getOvkaarten() {
+        return ovkaarten;
+    }
+
+    public void addCard(OV_Chipkaart ovkaart){
+        this.ovkaarten.add(ovkaart);
+    };
+    public void removeCard(OV_Chipkaart ovkaart){
+        this.ovkaarten.remove(ovkaart);
+    };
 
     public Adres getAdres() {
         return this.adres;
@@ -63,30 +83,22 @@ public class Reiziger {
     }
 
     public String getNaam(){
-        return this.voorletters +(tussenvoegsel != null ? " " + this.tussenvoegsel + " " : " " )+ this.achternaam;
+        return this.voorletters + (" " + this.tussenvoegsel + " ") + this.achternaam;
     }
 
     public String toString(){
-        StringBuilder str = new StringBuilder();
-
-        str.append("Reiziger #");
-        str.append(getId());
-        str.append(" met naam: ");
-        str.append(getNaam());
-        str.append(",");
-        str.append(" is geboren op: ");
-        str.append(getGeboortedatum());
+        String reiziger = "Reiziger: #" + getId() + ", naam: " + getNaam() + ", geboren op: " + getGeboortedatum() + ". ";
         if(adres != null){
-            str.append(" en woont op: ");
-            str.append(getAdres().getStraat());
-            str.append(getAdres().getHuisnummer());
-            str.append(", ");
-            str.append(getAdres().getPostcode());
-            str.append(" ");
-            str.append(getAdres().getWoonplaats());
-            str.append(".");
+            reiziger = reiziger + "Woont op: " + getAdres().getStraat() + " " + getAdres().getHuisnummer() + ", " + getAdres().getPostcode() + " te " + getAdres().getWoonplaats();
         }
-
-        return str.toString();
+        String ovkaartBegin = "\nReiziger " + getNaam() + " bezit de volgende OV-Chip kaarten: \n";
+        String kaarten = "";
+        for(OV_Chipkaart kaart : ovkaarten){
+            kaarten += "kaart " + kaart.getKaartnummer() + ": reist in klasse: " + kaart.getKlasse() + ", heeft saldo: " + kaart.getSaldo() + " euro en is geldig tot: " + kaart.getGeldig_tot() + ".\n";
+        }
+        if(kaarten == ""){
+            kaarten = "--: Reiziger heeft nog geen kaarten in bezit. \n";
+        }
+        return reiziger + ovkaartBegin + kaarten;
     }
 }
