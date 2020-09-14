@@ -1,21 +1,21 @@
 package forreal.Domein;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.List;
 
 
 public class Reiziger {
-    private int id;
+    private int reizigerId;
     private String voorletters;
     private String tussenvoegsel;
     private String achternaam;
-    private LocalDate geboortedatum;
+    private Date geboortedatum;
     private Adres adres;
-    private List<OV_Chipkaart> ovkaarten;
+    private List<OVChipkaart> ovkaarten;
 
-    public Reiziger(int id, String voorletters, String tussenvoegsel, String achternaam, LocalDate geboortedatum) {
-        this.id = id;
+    public Reiziger(int id, String voorletters, String tussenvoegsel, String achternaam, Date geboortedatum) {
+        this.reizigerId = id;
         this.voorletters = voorletters;
         this.tussenvoegsel = tussenvoegsel;
         this.achternaam = achternaam;
@@ -23,14 +23,14 @@ public class Reiziger {
         this.ovkaarten = new ArrayList<>();
     }
 
-    public List<OV_Chipkaart> getOvkaarten() {
+    public List<OVChipkaart> getOvkaarten() {
         return ovkaarten;
     }
 
-    public void addCard(OV_Chipkaart ovkaart){
+    public void addCard(OVChipkaart ovkaart){
         this.ovkaarten.add(ovkaart);
     };
-    public void removeCard(OV_Chipkaart ovkaart){
+    public void removeCard(OVChipkaart ovkaart){
         this.ovkaarten.remove(ovkaart);
     };
 
@@ -40,14 +40,6 @@ public class Reiziger {
 
     public void setAdres(Adres adres) {
         this.adres = adres;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getVoorletters() {
@@ -74,12 +66,20 @@ public class Reiziger {
         this.achternaam = achternaam;
     }
 
-    public LocalDate getGeboortedatum() {
+    public int getReizigerId() {
+        return reizigerId;
+    }
+
+    public void setReizigerId(int reizigerId) {
+        this.reizigerId = reizigerId;
+    }
+
+    public Date getGeboortedatum() {
         return geboortedatum;
     }
 
-    public void setGeboortedatum(String geboortedatum) {
-        this.geboortedatum = LocalDate.parse(geboortedatum);
+    public void setGeboortedatum(Date geboortedatum) {
+        this.geboortedatum = geboortedatum;
     }
 
     public String getNaam(){
@@ -87,14 +87,14 @@ public class Reiziger {
     }
 
     public String toString(){
-        String reiziger = "Reiziger: #" + getId() + ", naam: " + getNaam() + ", geboren op: " + getGeboortedatum() + ". ";
+        String reiziger = "Reiziger: #" + getReizigerId() + ", naam: " + getNaam() + ", geboren op: " + getGeboortedatum() + ". ";
         if(adres != null){
             reiziger = reiziger + "Woont op: " + getAdres().getStraat() + " " + getAdres().getHuisnummer() + ", " + getAdres().getPostcode() + " te " + getAdres().getWoonplaats();
         }
         String ovkaartBegin = "\nReiziger " + getNaam() + " bezit de volgende OV-Chip kaarten: \n";
         String kaarten = "";
-        for(OV_Chipkaart kaart : ovkaarten){
-            kaarten += "kaart " + kaart.getKaartnummer() + ": reist in klasse: " + kaart.getKlasse() + ", heeft saldo: " + kaart.getSaldo() + " euro en is geldig tot: " + kaart.getGeldig_tot() + ".\n";
+        for(OVChipkaart kaart : ovkaarten){
+            kaarten += "kaart " + kaart.getKaartnummer() + ": reist in klasse: " + kaart.getKlasse() + ", heeft saldo: " + kaart.getSaldo() + " euro en is geldig tot: " + kaart.getGeldigTot() + ".\n";
         }
         if(kaarten == ""){
             kaarten = "--: Reiziger heeft nog geen kaarten in bezit. \n";

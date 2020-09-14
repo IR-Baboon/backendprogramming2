@@ -2,29 +2,28 @@ package forreal.SQL;
 
 import forreal.DAO.AdresDAO;
 import forreal.DAO.OVChipkaartDAO;
-import forreal.DAO.ReizigersDAO;
+import forreal.DAO.ReizigerDAO;
 import forreal.Domein.Adres;
-import forreal.Domein.OV_Chipkaart;
+import forreal.Domein.OVChipkaart;
 import forreal.Domein.Reiziger;
 import forreal.Utils;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReizigersDAOPsql implements ReizigersDAO{
+public class ReizigerDAOPsql implements ReizigerDAO {
     private Connection conn;
     private AdresDAO adao;
     private OVChipkaartDAO ovdao;
 
-    public ReizigersDAOPsql(Connection conn){
+    public ReizigerDAOPsql(Connection conn){
         this.conn = conn;
         this.adao = new AdresDAOPsql(conn);
         this.ovdao = new OVChipkaartDAOPsql(conn);
     }
 
-    public Boolean save(Reiziger reiziger) throws SQLException {
+    public boolean save(Reiziger reiziger) throws SQLException {
         try{
             // stel de query samen
             String Query = "INSERT INTO reiziger(reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum) " +
@@ -34,11 +33,11 @@ public class ReizigersDAOPsql implements ReizigersDAO{
             PreparedStatement pst = conn.prepareStatement(Query);
 
             // voeg statement variabelen toe
-            pst.setInt(1, reiziger.getId());
+            pst.setInt(1, reiziger.getReizigerId());
             pst.setString(2, reiziger.getVoorletters());
             pst.setString(3, reiziger.getTussenvoegsel());
             pst.setString(4, reiziger.getAchternaam());
-            pst.setDate(5, Date.valueOf(reiziger.getGeboortedatum()));
+            pst.setDate(5, reiziger.getGeboortedatum());
 
             // Stuur de query naar de DB
             pst.executeUpdate();
@@ -47,7 +46,7 @@ public class ReizigersDAOPsql implements ReizigersDAO{
                adao.save(reiziger.getAdres());
             }
             if(reiziger.getOvkaarten().size() > 0){
-              for(OV_Chipkaart ovkaart : reiziger.getOvkaarten()){
+              for(OVChipkaart ovkaart : reiziger.getOvkaarten()){
                  ovdao.save(ovkaart);
               }
             }
@@ -60,7 +59,7 @@ public class ReizigersDAOPsql implements ReizigersDAO{
             return Utils.errorHandler(sql, conn);
         }
     }
-    public Boolean update(Reiziger reiziger){
+    public boolean update(Reiziger reiziger){
         try{
             // mstel de query samen
              String Query = "UPDATE " +
@@ -77,11 +76,11 @@ public class ReizigersDAOPsql implements ReizigersDAO{
             PreparedStatement pst = conn.prepareStatement(Query);
 
             // voeg statement variabelen toe
-            pst.setInt(5, reiziger.getId());
+            pst.setInt(5, reiziger.getReizigerId());
             pst.setString(1, reiziger.getVoorletters());
             pst.setString(2, reiziger.getTussenvoegsel());
             pst.setString(3, reiziger.getAchternaam());
-            pst.setDate(4, Date.valueOf(reiziger.getGeboortedatum()));
+            pst.setDate(4, reiziger.getGeboortedatum());
 
             // Stuur de query naar de DB
             pst.executeUpdate();
@@ -95,12 +94,12 @@ public class ReizigersDAOPsql implements ReizigersDAO{
             }
 
             if(reiziger.getOvkaarten().size() > 0){
-                List<OV_Chipkaart> kaarten = reiziger.getOvkaarten();
-                List<OV_Chipkaart> dbKaarten = ovdao.findByReiziger(reiziger);
+                List<OVChipkaart> kaarten = reiziger.getOvkaarten();
+                List<OVChipkaart> dbKaarten = ovdao.findByReiziger(reiziger);
                 boolean flag = false;
-                for(OV_Chipkaart ovkaart : kaarten){
+                for(OVChipkaart ovkaart : kaarten){
                     flag = false;
-                    for(OV_Chipkaart dbKaart : dbKaarten){
+                    for(OVChipkaart dbKaart : dbKaarten){
                         if(ovkaart.getKaartnummer() == dbKaart.getKaartnummer()){
                             ovdao.update(ovkaart);
                             flag = true;
@@ -121,7 +120,7 @@ public class ReizigersDAOPsql implements ReizigersDAO{
         }
     }
 
-    public Boolean delete(Reiziger reiziger){
+    public boolean delete(Reiziger reiziger){
         try{
             // stel de query samen
              String Query = "DELETE FROM " +
@@ -134,14 +133,14 @@ public class ReizigersDAOPsql implements ReizigersDAO{
                 adao.delete(reiziger.getAdres());
             }
             if(reiziger.getOvkaarten().size() > 0){
-                for(OV_Chipkaart ovkaart : reiziger.getOvkaarten()){
+                for(OVChipkaart ovkaart : reiziger.getOvkaarten()){
                     ovdao.delete(ovkaart);
                 }
             }
             PreparedStatement pst = conn.prepareStatement(Query);
 
             // voeg statement variabelen toe
-            pst.setInt(1, reiziger.getId());
+            pst.setInt(1, reiziger.getReizigerId());
          
             // Stuur de query naar de DB
             pst.executeUpdate();
@@ -176,7 +175,7 @@ public class ReizigersDAOPsql implements ReizigersDAO{
             String voorletters = "";
             String tussenvoegsel = "";
             String achternaam = "";
-            String geboortedatum = "";
+            Date geboortedatum = null;
             int id = 0;
 
             while(rs.next()){
@@ -184,15 +183,15 @@ public class ReizigersDAOPsql implements ReizigersDAO{
                 voorletters = rs.getString("voorletters");
                 tussenvoegsel = rs.getString("tussenvoegsel");
                 achternaam = rs.getString("achternaam");
-                geboortedatum = rs.getDate("geboortedatum").toString() ;
+                geboortedatum = rs.getDate("geboortedatum");
             };
 
-            Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, LocalDate.parse(geboortedatum.toString()));
+            Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum);
             Adres adres = adao.findByReiziger(reiziger);
-            List<OV_Chipkaart> ovkaarten = ovdao.findByReiziger(reiziger);
+            List<OVChipkaart> ovkaarten = ovdao.findByReiziger(reiziger);
 
             if(ovkaarten.size() > 0){
-                for(OV_Chipkaart ovkaart : ovkaarten){
+                for(OVChipkaart ovkaart : ovkaarten){
                     reiziger.addCard(ovkaart);
                     ovkaart.setReiziger(reiziger);
                 }
@@ -216,7 +215,7 @@ public class ReizigersDAOPsql implements ReizigersDAO{
         }
 
     }
-    public List<Reiziger> findByGbdatum(String datum){
+    public List<Reiziger> findByGbdatum(Date datum){
         try{
             // mstel de query samen
              String Query = "SELECT FROM " +
@@ -228,7 +227,7 @@ public class ReizigersDAOPsql implements ReizigersDAO{
             PreparedStatement pst = conn.prepareStatement(Query);
 
             // voeg statement variabelen toe
-            pst.setDate(1, Date.valueOf(datum));
+            pst.setDate(1, datum);
 
             // Stuur de query naar de DB
             ResultSet rs = pst.executeQuery();
@@ -242,15 +241,15 @@ public class ReizigersDAOPsql implements ReizigersDAO{
                 String achternaam = rs.getString("achternaam");
                 Date geboortedatum = rs.getDate("geboortedatum");
 
-                Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, LocalDate.parse(geboortedatum.toString()));
+                Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum);
                 resultlist.add(reiziger);
             }
             for(Reiziger reiziger : resultlist){
                 Adres adres = adao.findByReiziger(reiziger);
-                List<OV_Chipkaart> ovkaarten = ovdao.findByReiziger(reiziger);
+                List<OVChipkaart> ovkaarten = ovdao.findByReiziger(reiziger);
 
                 if(ovkaarten.size() > 0){
-                    for(OV_Chipkaart ovkaart : ovkaarten){
+                    for(OVChipkaart ovkaart : ovkaarten){
                         reiziger.addCard(ovkaart);
                         ovkaart.setReiziger(reiziger);
                     }
@@ -293,16 +292,16 @@ public class ReizigersDAOPsql implements ReizigersDAO{
                 String achternaam = rs.getString("achternaam");
                 Date geboortedatum = rs.getDate("geboortedatum");
 
-                Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, LocalDate.parse(geboortedatum.toString()));
+                Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum);
                 resultlist.add(reiziger);
             }
 
             for(Reiziger reiziger : resultlist){
                 Adres adres = adao.findByReiziger(reiziger);
-                List<OV_Chipkaart> ovkaarten = ovdao.findByReiziger(reiziger);
+                List<OVChipkaart> ovkaarten = ovdao.findByReiziger(reiziger);
 
                 if(ovkaarten.size() > 0){
-                    for(OV_Chipkaart ovkaart : ovkaarten){
+                    for(OVChipkaart ovkaart : ovkaarten){
                         reiziger.addCard(ovkaart);
                         ovkaart.setReiziger(reiziger);
                     }

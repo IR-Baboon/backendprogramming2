@@ -1,9 +1,7 @@
 package forreal.Domein;
 
-import org.checkerframework.checker.units.qual.A;
-
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Product {
@@ -12,9 +10,9 @@ public class Product {
     private String beschrijving;
     private double prijs;
     private String status;
-    private LocalDate last_update;
+    private Date last_update;
 
-    private List<OV_Chipkaart> ovkaarten;
+    private List<OVChipkaart> ovkaarten;
 
     public Product(int product_nummer, String naam, String beschrijving, double prijs) {
         this.product_nummer = product_nummer;
@@ -64,11 +62,11 @@ public class Product {
         this.status = status;
     }
 
-    public LocalDate getLast_update() {
+    public Date getLast_update() {
         return last_update;
     }
 
-    public void setLast_update(LocalDate last_update) {
+    public void setLast_update(Date last_update) {
         this.last_update = last_update;
     }
 

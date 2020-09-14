@@ -1,24 +1,22 @@
 package forreal.Domein;
 
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OV_Chipkaart {
+public class OVChipkaart {
     private int kaartnummer;
-    private LocalDate geldig_tot;
+    private Date geldigTot;
     private int klasse;
     private double saldo;
-    private int reiziger_id;
     private Reiziger reiziger;
     private List<Product> producten;
 
-    public OV_Chipkaart(int kaartnummer, LocalDate geldig_tot, int klasse, double saldo, int reiziger_id) {
+    public OVChipkaart(int kaartnummer, Date geldigTot, int klasse, double saldo) {
         this.kaartnummer = kaartnummer;
-        this.geldig_tot = geldig_tot;
+        this.geldigTot = geldigTot;
         this.klasse = klasse;
         this.saldo = saldo;
-        this.reiziger_id = reiziger_id;
         this.producten = new ArrayList<>();
     }
 
@@ -41,12 +39,12 @@ public class OV_Chipkaart {
         this.kaartnummer = kaartnummer;
     }
 
-    public LocalDate getGeldig_tot() {
-        return geldig_tot;
+    public Date getGeldigTot() {
+        return geldigTot;
     }
 
-    public void setGeldig_tot(LocalDate geldig_tot) {
-        this.geldig_tot = geldig_tot;
+    public void setGeldigTot(Date geldigTot) {
+        this.geldigTot = geldigTot;
     }
 
     public int getKlasse() {
@@ -65,13 +63,6 @@ public class OV_Chipkaart {
         this.saldo = saldo;
     }
 
-    public int getReiziger_id() {
-        return reiziger_id;
-    }
-
-    public void setReiziger_id(int reiziger_id) {
-        this.reiziger_id = reiziger_id;
-    }
 
     public Reiziger getReiziger() {
         return reiziger;
@@ -83,7 +74,7 @@ public class OV_Chipkaart {
 
     @Override
     public String toString() {
-        String kaart = "kaartnummer: " + kaartnummer + ", geldig tot " + geldig_tot + ", klasse: " + klasse + ", saldo: " + saldo  + "\n";
+        String kaart = "kaartnummer: " + kaartnummer + ", geldig tot " + geldigTot + ", klasse: " + klasse + ", saldo: " + saldo  + "\n";
         if(reiziger!=null){
            kaart +=  " en staat op naam van: " + reiziger.getNaam() + "\n";
         }
