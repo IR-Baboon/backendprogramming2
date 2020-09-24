@@ -3,15 +3,25 @@ package forreal;
 
 import forreal.DAO.AdresDAO;
 import forreal.DAO.OVChipkaartDAO;
+import forreal.DAO.ProductDAO;
 import forreal.DAO.ReizigerDAO;
 import forreal.Domein.Adres;
 import forreal.Domein.OVChipkaart;
+import forreal.Domein.Product;
 import forreal.Domein.Reiziger;
 import forreal.SQL.AdresDAOPsql;
 import forreal.SQL.OVChipkaartDAOPsql;
+import forreal.SQL.ProductDAOPsql;
 import forreal.SQL.ReizigerDAOPsql;
 
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 
 public class Main {
@@ -26,10 +36,11 @@ public class Main {
             ReizigerDAOPsql rdaop = new ReizigerDAOPsql(conn);
             AdresDAOPsql adaop = new AdresDAOPsql(conn, rdaop);
             OVChipkaartDAOPsql ovdaop = new OVChipkaartDAOPsql(conn, rdaop);
-
+            ProductDAOPsql pdaop = new ProductDAOPsql(conn);
             testReizigerDAO(rdaop);
             testAdresDAO(adaop, rdaop);
             testOVChipkaartDAO(ovdaop, rdaop);
+            testProductDAO(ovdaop, pdaop, rdaop);
             // sluit de verbinding
             closeConnection(conn);
 
@@ -61,7 +72,9 @@ public class Main {
 
         // Maak een nieuwe reiziger aan en persisteer deze in de database
         String gbdatum = "1981-03-14";
-        Reiziger sietske = new Reiziger(11, "S", "", "Boers", Date.valueOf(gbdatum));
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(java.sql.Date.valueOf(gbdatum));
+        Reiziger sietske = new Reiziger(11, "S", "", "Boers", cal);
         System.out.print("[Test] Eerst " + reizigers.size() + " reizigers, na ReizigerDAO.save() ");
         rdao.save(sietske);
 
@@ -76,7 +89,9 @@ public class Main {
         // Test van de update functie. Gebortedatum sietske wordt aagepast.
         System.out.print("[Test] Eerst \n" + sietske.toString() + "\n na ReizigerDAO.update() \n");
         String gbdatum2 = "1981-03-12";
-        sietske.setGeboortedatum(Date.valueOf(gbdatum2));
+        cal = Calendar.getInstance();
+        cal.setTime(java.sql.Date.valueOf(gbdatum2));
+        sietske.setGeboortedatum(cal);
 
         rdao.update(sietske);
         Reiziger sietskeUpdated = rdao.findById(sietske.getReizigerId());
@@ -95,7 +110,9 @@ public class Main {
         // Maak ook een reiziger aan voor test van relatie persistentie.
         System.out.println("Reiziger wordt aangemaakt en gepersisteerd zonder adres en ovchipkaart. ");
         String gbdatum = "1981-03-14";
-        Reiziger sietske = new Reiziger(11, "S", "", "Boers", Date.valueOf(gbdatum));
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(java.sql.Date.valueOf(gbdatum));
+        Reiziger sietske = new Reiziger(11, "S", "", "Boers", cal);
         rdao.save(sietske);
 
         // Haal alle ovkaarten op uit de database en toon deze op het scherm ter controle.
@@ -118,11 +135,13 @@ public class Main {
 
 
         // Maak een nieuwe OVKaart aan en persisteer deze in de database
-        OVChipkaart ovkaart = new OVChipkaart(11, Date.valueOf(gbdatum), 2, 55.60);
+        gbdatum = "2025-03-14";
+        cal = Calendar.getInstance();
+        cal.setTime(java.sql.Date.valueOf(gbdatum));
+        OVChipkaart ovkaart = new OVChipkaart(11, cal, 2, 55.60);
         sietske.addCard(ovkaart);
         ovkaart.setReiziger(sietske);
         ovdaop.save(ovkaart);
-
         // test of de persistentie gelukt is
 
         System.out.println("\n---------- Test OVChipkaartDAO -------------");
@@ -140,11 +159,11 @@ public class Main {
         System.out.println("kaart 1 wordt via OVDAO gepersisteerd. ");
         ovdaop.update(ovkaart);
 
-
         System.out.println("\n---------- Test OVChipkaartDAO -------------");
         ovkaarten = ovdaop.findByReiziger(sietske);
         System.out.println("[Test] OVDAO.findByReiziger() geeft de volgende ovkaarten:");
         for (OVChipkaart kaart : ovkaarten) {
+
             System.out.println(kaart.toString());
         }
         System.out.println(sietske.toString());
@@ -170,7 +189,103 @@ public class Main {
             System.out.println(kaart.toString());
         }
     }
+    public static void testProductDAO(OVChipkaartDAO ovdaop, ProductDAO pdao, ReizigerDAO rdao) throws SQLException {
+        System.out.println("\n---------- Test ProductDAO -------------");
+        System.out.println("\n---------- Test Product OVkaart relatie opslag -------------");
 
+        // Maak een Reiziger en OVChipkaart aan en sla deze op zodat producten kunnen worden toegevoegd.
+
+        String gbdatum = "1981-03-14";
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(java.sql.Date.valueOf(gbdatum));
+        Reiziger sietske = new Reiziger(11, "S", "", "Boers", cal);
+        gbdatum = "2025-03-14";
+        cal = Calendar.getInstance();
+        cal.setTime(java.sql.Date.valueOf(gbdatum));
+        OVChipkaart ovkaart = new OVChipkaart(11, cal, 2, 55.60);
+        sietske.addCard(ovkaart);
+        ovkaart.setReiziger(sietske);
+        rdao.save(sietske);
+        System.out.println();
+        // Haal alle producten op uit de database en toon deze op het scherm ter controle.
+        List<Product> producten = pdao.findAll();
+        System.out.println("[Test] PDAO.findAll() geeft de volgende producten:");
+        for (Product product1 : producten) {
+            System.out.println(product1.toString());
+        }
+        System.out.println();
+        // Maak een Product aan voor de opslagtest pdao.save().
+        System.out.println("Product wordt aangemaakt en gepersisteerd zonder adres en ovchipkaart. ");
+        Product product1 = new Product(11, "test product DAO", "DAO test pdao.save()", 0.00);
+        Product product2 = new Product(11, "test product DAO", "DAO test pdao.save()", 0.00);
+        pdao.save(product1);
+        System.out.println();
+        // Haal alle producten op uit de database en toon deze op het scherm ter controle.
+        producten = pdao.findAll();
+        System.out.println("[Test] PDAO.findAll() geeft na productopslag de volgende producten:");
+        for (Product product : producten) {
+            System.out.println(product.toString());
+        }
+        System.out.println();
+        System.out.println("Product wordt aangepast en gepersisteerd ");
+
+        product1.setKaart_nummer(ovkaart.getKaartnummer());
+        product1.setStatus("gekocht");
+        cal = Calendar.getInstance();
+        cal.setTime(new java.util.Date());
+        product1.setLast_update(cal);
+        ovkaart.addProduct(product1);
+        ovdaop.update(ovkaart);
+        System.out.println();
+        //controleer de persistentie
+        producten = pdao.findByOVChipkaart(ovkaart);
+        System.out.println("[Test] PDAO.findByOVChipkaart() geeft na update van product de volgende producten:");
+        for (Product product : producten) {
+            System.out.println(product.toString());
+        }
+        System.out.println();
+        // Pas het product aan en sla het op met pdao.update().
+        product2.setNaam("Update test pdao.update()");
+        pdao.update(product2);
+        System.out.println();
+        // Haal alle producten op uit de database en toon deze op het scherm ter controle.
+        producten = pdao.findAll();
+        System.out.println("[Test] PDAO.findAll() geeft na update van product de volgende producten:");
+        for (Product product : producten) {
+            System.out.println(product.toString());
+        }
+        System.out.println();
+        //controleer de persistentie
+        producten = pdao.findByOVChipkaart(ovkaart);
+        System.out.println("[Test] PDAO.findByOVChipkaart() geeft na update van product de volgende producten:");
+        for (Product product : producten) {
+            System.out.println(product.toString());
+        }
+        System.out.println();
+        // verwijder product van kaart.
+        ovkaart.removeProduct(product1);
+        pdao.delete(product1);
+        //controleer de persistentie
+        producten = pdao.findByOVChipkaart(ovkaart);
+        System.out.println("[Test] PDAO.findByOVChipkaart() geeft na update van product de volgende producten:");
+        for (Product product : producten) {
+            System.out.println(product.toString());
+        }
+        System.out.println();
+        // verwijder product uit db.
+        ovkaart.removeProduct(product2);
+        pdao.delete(product2);
+        // Haal alle producten op uit de database en toon deze op het scherm ter controle.
+        producten = pdao.findAll();
+        System.out.println("[Test] PDAO.findAll() geeft na update van product de volgende producten:");
+        for (Product product : producten) {
+            System.out.println(product.toString());
+        }
+        System.out.println();
+        // delete ovKaart
+        ovdaop.delete(ovkaart);
+        rdao.delete(sietske);
+    }
     private static void testAdresDAO(AdresDAO adao, ReizigerDAO rdao) throws SQLException {
 
         System.out.println("\n---------- Test AdresDAO -------------");
@@ -183,7 +298,9 @@ public class Main {
             System.out.println(adres1.toString());
         }
         String gbdatum = "1981-03-14";
-        Reiziger sietske = new Reiziger(11, "S", "", "Boers", Date.valueOf(gbdatum));
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(java.sql.Date.valueOf(gbdatum));
+        Reiziger sietske = new Reiziger(11, "S", "", "Boers", cal);
         rdao.save(sietske);
 
 

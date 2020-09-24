@@ -94,7 +94,7 @@ public class Adres {
             str.append(" en wordt bewoond door: ");
             str.append(getReiziger().getNaam());
             str.append(" en is geboren op: ");
-            str.append(getReiziger().getGeboortedatum());
+            str.append(getReiziger().getGeboortedatum().getTime().toString());
             str.append(".");
         }
 

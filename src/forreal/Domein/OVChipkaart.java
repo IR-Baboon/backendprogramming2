@@ -1,18 +1,19 @@
 package forreal.Domein;
 
-import java.sql.Date;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OVChipkaart {
     private int kaartnummer;
-    private Date geldigTot;
+    private Calendar geldigTot;
     private int klasse;
     private double saldo;
     private Reiziger reiziger;
     private List<Product> producten;
 
-    public OVChipkaart(int kaartnummer, Date geldigTot, int klasse, double saldo) {
+    public OVChipkaart(int kaartnummer, Calendar geldigTot, int klasse, double saldo) {
         this.kaartnummer = kaartnummer;
         this.geldigTot = geldigTot;
         this.klasse = klasse;
@@ -39,11 +40,11 @@ public class OVChipkaart {
         this.kaartnummer = kaartnummer;
     }
 
-    public Date getGeldigTot() {
+    public Calendar getGeldigTot() {
         return geldigTot;
     }
 
-    public void setGeldigTot(Date geldigTot) {
+    public void setGeldigTot(Calendar geldigTot) {
         this.geldigTot = geldigTot;
     }
 
@@ -74,18 +75,18 @@ public class OVChipkaart {
 
     @Override
     public String toString() {
-        String kaart = "kaartnummer: " + kaartnummer + ", geldig tot " + geldigTot + ", klasse: " + klasse + ", saldo: " + saldo  + "\n";
+        String kaart = "kaartnummer: " + kaartnummer + ", geldig tot " + geldigTot.getTime().toString() + ", klasse: " + klasse + ", saldo: " + saldo  + " ";
         if(reiziger!=null){
-           kaart +=  " en staat op naam van: " + reiziger.getNaam() + "\n";
+           kaart +=  "en staat op naam van: " + reiziger.getNaam() + "\n";
         }
         String productbegin = "Deze kaart bevat de volgende producten: \n";
         String producten = "";
 
         for(Product product : this.producten){
-            producten += product.getProduct_nummer() + ": " + product.getNaam() + ", \n" + product.getBeschrijving() + "\nStatus: " + product.getStatus() + ". Last update:" + product.getLast_update() + ". Prijs: " + product.getPrijs();
+            producten += "  " + product.getProduct_nummer() + ": " + product.getNaam() + ", " + product.getBeschrijving() + ", Status: " + product.getStatus() + ", Last update:" + product.getLast_update().getTime().toString() + ", Prijs: " + product.getPrijs() + "\n";
         }
         if(producten == ""){
-            producten = "--: Deze kaart heeft geen producten. \n";
+            producten = "   --: Deze kaart heeft geen producten. \n";
         }
         return kaart + productbegin + producten;
 

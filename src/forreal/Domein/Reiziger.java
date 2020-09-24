@@ -1,7 +1,8 @@
 package forreal.Domein;
 
 import java.util.ArrayList;
-import java.sql.Date;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -10,11 +11,11 @@ public class Reiziger {
     private String voorletters;
     private String tussenvoegsel;
     private String achternaam;
-    private Date geboortedatum;
+    private Calendar geboortedatum;
     private Adres adres;
     private List<OVChipkaart> ovkaarten;
 
-    public Reiziger(int id, String voorletters, String tussenvoegsel, String achternaam, Date geboortedatum) {
+    public Reiziger(int id, String voorletters, String tussenvoegsel, String achternaam, Calendar geboortedatum) {
         this.reizigerId = id;
         this.voorletters = voorletters;
         this.tussenvoegsel = tussenvoegsel;
@@ -74,30 +75,39 @@ public class Reiziger {
         this.reizigerId = reizigerId;
     }
 
-    public Date getGeboortedatum() {
+    public Calendar getGeboortedatum() {
         return geboortedatum;
     }
 
-    public void setGeboortedatum(Date geboortedatum) {
+    public void setGeboortedatum(Calendar geboortedatum) {
         this.geboortedatum = geboortedatum;
     }
 
     public String getNaam(){
-        return this.voorletters + (" " + this.tussenvoegsel + " ") + this.achternaam;
+        return this.voorletters + (this.tussenvoegsel != null? " " + this.tussenvoegsel + " " : " ") + this.achternaam;
     }
 
     public String toString(){
-        String reiziger = "Reiziger: #" + getReizigerId() + ", naam: " + getNaam() + ", geboren op: " + getGeboortedatum() + ". ";
+        String reiziger = "Reiziger: #" + getReizigerId() + ", naam: " + getNaam() + ", geboren op: " + getGeboortedatum().getTime().toString() + ". ";
         if(adres != null){
             reiziger = reiziger + "Woont op: " + getAdres().getStraat() + " " + getAdres().getHuisnummer() + ", " + getAdres().getPostcode() + " te " + getAdres().getWoonplaats();
         }
         String ovkaartBegin = "\nReiziger " + getNaam() + " bezit de volgende OV-Chip kaarten: \n";
         String kaarten = "";
         for(OVChipkaart kaart : ovkaarten){
-            kaarten += "kaart " + kaart.getKaartnummer() + ": reist in klasse: " + kaart.getKlasse() + ", heeft saldo: " + kaart.getSaldo() + " euro en is geldig tot: " + kaart.getGeldigTot() + ".\n";
+            kaarten += "    kaart " + kaart.getKaartnummer() + ": reist in klasse: " + kaart.getKlasse() + ", heeft saldo: " + kaart.getSaldo() + " euro en is geldig tot: " + kaart.getGeldigTot().getTime().toString() + ".\n";
+            String producten = "";
+
+            for(Product product : kaart.getProducten()){
+                producten += "      " + product.getProduct_nummer() + ": " + product.getNaam() + ", " + product.getBeschrijving() + "Status: " + product.getStatus() + ". Last update:" + product.getLast_update().getTime().toString() + ". Prijs: " + product.getPrijs() + "\n";
+            }
+            if(producten == ""){
+                producten = "       --: Deze kaart heeft geen producten. \n";
+            }
+            kaarten += producten;
         }
         if(kaarten == ""){
-            kaarten = "--: Reiziger heeft nog geen kaarten in bezit. \n";
+            kaarten = "     --: Reiziger heeft nog geen kaarten in bezit. \n";
         }
         return reiziger + ovkaartBegin + kaarten;
     }

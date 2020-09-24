@@ -9,7 +9,10 @@ import forreal.Domein.Reiziger;
 import forreal.Utils;
 
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class ReizigerDAOPsql implements ReizigerDAO {
@@ -37,7 +40,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             pst.setString(2, reiziger.getVoorletters());
             pst.setString(3, reiziger.getTussenvoegsel());
             pst.setString(4, reiziger.getAchternaam());
-            pst.setDate(5, reiziger.getGeboortedatum());
+            pst.setDate(5, new java.sql.Date(reiziger.getGeboortedatum().getTimeInMillis()));
 
             // Stuur de query naar de DB
             pst.executeUpdate();
@@ -80,7 +83,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             pst.setString(1, reiziger.getVoorletters());
             pst.setString(2, reiziger.getTussenvoegsel());
             pst.setString(3, reiziger.getAchternaam());
-            pst.setDate(4, reiziger.getGeboortedatum());
+            pst.setDate(4, new java.sql.Date(reiziger.getGeboortedatum().getTimeInMillis()));
 
             // Stuur de query naar de DB
             pst.executeUpdate();
@@ -177,6 +180,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             String achternaam = "";
             Date geboortedatum = null;
             int id = 0;
+            Calendar cal = Calendar.getInstance();
 
             while(rs.next()){
                 id = rs.getInt("reiziger_id");
@@ -184,9 +188,11 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 tussenvoegsel = rs.getString("tussenvoegsel");
                 achternaam = rs.getString("achternaam");
                 geboortedatum = rs.getDate("geboortedatum");
+
+                cal.setTime(geboortedatum);
             };
 
-            Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum);
+            Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, cal);
             Adres adres = adao.findByReiziger(reiziger);
             List<OVChipkaart> ovkaarten = ovdao.findByReiziger(reiziger);
 
@@ -240,8 +246,9 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 String tussenvoegsel = rs.getString("tussenvoegsel");
                 String achternaam = rs.getString("achternaam");
                 Date geboortedatum = rs.getDate("geboortedatum");
-
-                Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(geboortedatum);
+                Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, cal);
                 resultlist.add(reiziger);
             }
             for(Reiziger reiziger : resultlist){
@@ -291,8 +298,9 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 String tussenvoegsel = rs.getString("tussenvoegsel");
                 String achternaam = rs.getString("achternaam");
                 Date geboortedatum = rs.getDate("geboortedatum");
-
-                Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(geboortedatum);
+                Reiziger reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, cal);
                 resultlist.add(reiziger);
             }
 
