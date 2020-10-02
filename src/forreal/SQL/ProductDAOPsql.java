@@ -19,25 +19,10 @@ public class ProductDAOPsql implements ProductDAO {
         this.conn = conn;
     }
 
+
     public boolean save(Product product){
         try{
-            if(product.getKaart_nummer() != 0){
-                String Query = "INSERT INTO ov_chipkaart_product (product_nummer, kaart_nummer, status, last_update) VALUES (?, ?, ?, ?)";
 
-                // maak een statement
-                PreparedStatement pst = conn.prepareStatement(Query);
-
-                // voeg statement variabelen toe
-                pst.setInt(1, product.getProduct_nummer());
-                pst.setInt(2, product.getKaart_nummer());
-                pst.setString(3, product.getStatus());
-                pst.setDate(4, new Date(product.getLast_update().getTimeInMillis()));
-
-                // Stuur de query naar de DB
-                pst.executeUpdate();
-                pst.close();
-                return true;
-            }
             // mstel de query samen
             String Query = "INSERT INTO product (product_nummer, naam, beschrijving, prijs) VALUES (?, ?, ?, ?)";
 
@@ -52,10 +37,19 @@ public class ProductDAOPsql implements ProductDAO {
 
             // Stuur de query naar de DB
             pst.executeUpdate();
-
-            // sluit alles netjes af
             pst.close();
-
+            for(int ovChipkaart : product.getOvkaarten()){
+                Query = "INSERT INTO ov_chipkaart_product (kaart_nummer, product_nummer) VALUES (?, ?)";
+                // maak een statement
+                pst = conn.prepareStatement(Query);
+                // voeg statement variabelen toe
+                pst.setInt(2, product.getProduct_nummer());
+                pst.setInt(1, ovChipkaart);
+                // Stuur de query naar de DB
+                pst.executeUpdate();
+                // sluit alles netjes af
+                pst.close();
+            }
             return true;
 
         }catch(SQLException sql){
@@ -64,24 +58,7 @@ public class ProductDAOPsql implements ProductDAO {
     }
     public boolean update(Product product){
         try{
-            if(product.getKaart_nummer() != 0){
-                String Query = "UPDATE ov_chipkaart_product SET status = ?, last_update = ? WHERE kaart_nummer = ? AND product_nummer = ?";
 
-                // maak een statement
-                PreparedStatement pst = conn.prepareStatement(Query);
-
-                // voeg statement variabelen toe
-                pst.setInt(4, product.getProduct_nummer());
-                pst.setInt(3, product.getKaart_nummer());
-                pst.setString(1, product.getStatus());
-                System.out.println(new Date(product.getLast_update().getTimeInMillis()));
-                pst.setDate(2, new Date(product.getLast_update().getTimeInMillis()));
-
-                // Stuur de query naar de DB
-                pst.executeUpdate();
-                pst.close();
-                return true;
-            }
             // stel de query samen
             String Query =  "UPDATE " +
                                 "product " +
@@ -103,7 +80,29 @@ public class ProductDAOPsql implements ProductDAO {
 
             // Stuur de query naar de DB
             pst.executeUpdate();
+            for(int ovkaart : product.getOvkaarten()){
+                List<Product> lijst = this.findByOVChipkaart(ovkaart);
+                if(lijst.contains(product)){
+                    Query = "UPDATE ov_chipkaart_product SET last_update = ? WHERE kaart_nummer = ? AND product_nummer = ?";
+                    // maak een statement
+                    pst = conn.prepareStatement(Query);
+                    // voeg statement variabelen toe
+                    pst.setInt(3, product.getProduct_nummer());
+                    pst.setInt(2, ovkaart);
+                    pst.setDate(1, Date.valueOf("2020-10-10"));
+                }else{
+                    Query = "INSERT INTO ov_chipkaart_product(kaart_nummer, product_nummer) VALUES (?, ?)";
+                    // maak een statement
+                    pst = conn.prepareStatement(Query);
+                    // voeg statement variabelen toe
+                    pst.setInt(2, product.getProduct_nummer());
+                    pst.setInt(1, ovkaart);
+                }
+                pst.executeUpdate();
 
+                // sluit alles netjes af
+                pst.close();
+            }
             // sluit alles netjes af
 
             pst.close();
@@ -115,28 +114,18 @@ public class ProductDAOPsql implements ProductDAO {
     }
     public boolean delete(Product product){
         try{
-            if(product.getKaart_nummer() != 0){
-                String Query = "DELETE FROM " +
-                        "ov_chipkaart_product " +
-                        "WHERE " +
-                        "product_nummer = ? AND kaart_nummer = ?";
-
+            for(int ovkaart : product.getOvkaarten()){
+                String Query = "DELETE FROM ov_chipkaart_product WHERE kaart_nummer = ? AND product_nummer = ?";
                 // maak een statement
                 PreparedStatement pst = conn.prepareStatement(Query);
-
                 // voeg statement variabelen toe
-                pst.setInt(1, product.getProduct_nummer());
-                pst.setInt(2, product.getKaart_nummer());
-
+                pst.setInt(2, product.getProduct_nummer());
+                pst.setInt(1, ovkaart);
                 // Stuur de query naar de DB
                 pst.executeUpdate();
-
                 // sluit alles netjes af
                 pst.close();
-
-                // return boolean waarde
-                return true;
-            }else{
+            }
                 // stel de query samen
                 String Query = "DELETE FROM " +
                         "product " +
@@ -151,20 +140,20 @@ public class ProductDAOPsql implements ProductDAO {
 
                 // Stuur de query naar de DB
                 pst.executeUpdate();
+                pst.close();
 
                 // sluit alles netjes af
                 pst.close();
 
                 // return boolean waarde
                 return true;
-            }
 
 
         }catch(SQLException sql){
             return Utils.errorHandler(sql, conn);
         }
     }
-    public List<Product> findByOVChipkaart(OVChipkaart kaart){
+    public List<Product> findByOVChipkaart(int kaart){
         try{
             // mstel de query samen
             String Query = "SELECT * FROM " +
@@ -178,7 +167,7 @@ public class ProductDAOPsql implements ProductDAO {
             PreparedStatement pst = conn.prepareStatement(Query);
 
             // voeg statement variabelen toe
-            pst.setInt(1, kaart.getKaartnummer());
+            pst.setInt(1, kaart);
 
             // Stuur de query naar de DB
             ResultSet rs = pst.executeQuery();
@@ -189,16 +178,10 @@ public class ProductDAOPsql implements ProductDAO {
                 int kaartnummer = rs.getInt("kaart_nummer");
                 int productnummer = rs.getInt("product_nummer");
                 String naam = rs.getString("naam");
-                String status = rs.getString("status");
                 double prijs = rs.getDouble("prijs");
-                Date date = rs.getDate("last_update");
+
                 String beschrijving = rs.getString("beschrijving");
                 Product product = new Product(productnummer, naam, beschrijving, prijs);
-                product.setKaart_nummer(kaartnummer);
-                product.setStatus(status);
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(date);
-                product.setLast_update(cal);
 
                 resultaat.add(product);
             }
@@ -216,7 +199,7 @@ public class ProductDAOPsql implements ProductDAO {
     public List<Product> findAll(){
         try{
             // mstel de query samen
-            String Query = "SELECT * FROM product";
+            String Query = "SELECT * FROM product p LEFT JOIN ov_chipkaart_product o ON p.product_nummer = o.product_nummer ORDER BY p.product_nummer";
 
             // maak een statement
             Statement st = conn.createStatement();
@@ -234,7 +217,12 @@ public class ProductDAOPsql implements ProductDAO {
                 String beschrijving = rs.getString("beschrijving");
                 Product product = new Product(productnummer, naam, beschrijving, prijs);
 
-                resultaat.add(product);
+                if(resultaat.contains(product)){
+                    resultaat.get(resultaat.indexOf(product)).addOvkaart(rs.getInt("kaart_nummer"));
+                }else{
+                    product.addOvkaart(rs.getInt("kaart_nummer"));
+                    resultaat.add(product);
+                }
             }
 
             // sluit alles netjes af

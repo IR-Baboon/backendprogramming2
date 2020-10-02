@@ -99,7 +99,7 @@ public class Reiziger {
             String producten = "";
 
             for(Product product : kaart.getProducten()){
-                producten += "      " + product.getProduct_nummer() + ": " + product.getNaam() + ", " + product.getBeschrijving() + "Status: " + product.getStatus() + ". Last update:" + product.getLast_update().getTime().toString() + ". Prijs: " + product.getPrijs() + "\n";
+                producten += "      " + product.getProduct_nummer() + ": " + product.getNaam() + ", " + product.getBeschrijving() + ". Prijs: " + product.getPrijs() + "\n";
             }
             if(producten == ""){
                 producten = "       --: Deze kaart heeft geen producten. \n";

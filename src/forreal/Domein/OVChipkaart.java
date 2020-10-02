@@ -24,12 +24,20 @@ public class OVChipkaart {
     public List<Product> getProducten() {
         return producten;
     }
-
     public void addProduct(Product product) {
-        this.producten.add(product);
+        producten.add(product);
     }
     public void removeProduct(Product product) {
-        this.producten.remove(product);
+        producten.removeIf(product1 -> product1.getProduct_nummer() == product.getProduct_nummer());
+    }
+
+    public boolean contains(Product product){
+        for(Product product1: producten){
+            if(product.getProduct_nummer() == product1.getProduct_nummer()){
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getKaartnummer() {
@@ -64,6 +72,14 @@ public class OVChipkaart {
         this.saldo = saldo;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OVChipkaart)) return false;
+        OVChipkaart ovkaart = (OVChipkaart) o;
+        return kaartnummer == ovkaart.getKaartnummer() &&
+                klasse == ovkaart.klasse;
+    }
 
     public Reiziger getReiziger() {
         return reiziger;
@@ -83,7 +99,7 @@ public class OVChipkaart {
         String producten = "";
 
         for(Product product : this.producten){
-            producten += "  " + product.getProduct_nummer() + ": " + product.getNaam() + ", " + product.getBeschrijving() + ", Status: " + product.getStatus() + ", Last update:" + product.getLast_update().getTime().toString() + ", Prijs: " + product.getPrijs() + "\n";
+            producten += "  " + product.getProduct_nummer() + ": " + product.getNaam() + ", " + product.getBeschrijving() + ", Prijs: " + product.getPrijs() + "\n";
         }
         if(producten == ""){
             producten = "   --: Deze kaart heeft geen producten. \n";

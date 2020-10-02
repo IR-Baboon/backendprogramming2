@@ -8,16 +8,33 @@ public class Product {
     private String naam;
     private String beschrijving;
     private double prijs;
-    private int kaart_nummer;
-    private String status;
-    private Calendar last_update;
-
+    private List<Integer> ovkaarten;
 
     public Product(int product_nummer, String naam, String beschrijving, double prijs) {
         this.product_nummer = product_nummer;
         this.naam = naam;
         this.beschrijving = beschrijving;
         this.prijs = prijs;
+        ovkaarten = new ArrayList<>();
+    }
+
+    public List<Integer> getOvkaarten() {
+        return ovkaarten;
+    }
+    public void addOvkaart(int ovChipkaart) {
+        ovkaarten.add(ovChipkaart);
+    }
+    public void removeOvkaart(int ovChipkaart) {
+        ovkaarten.removeIf(ovChipkaart1 -> ovChipkaart1 == ovChipkaart);
+    }
+
+    public boolean contains(int ovkaart){
+        for(int ovChipkaart : ovkaarten){
+            if(ovChipkaart == ovkaart){
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getProduct_nummer() {
@@ -52,56 +69,15 @@ public class Product {
         this.prijs = prijs;
     }
 
-    public int getKaart_nummer() {
-        return kaart_nummer;
-    }
-
-    public void setKaart_nummer(int kaart_nummer) {
-        this.kaart_nummer = kaart_nummer;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Calendar getLast_update() {
-        return last_update;
-    }
-
-    public void setLast_update(Calendar last_update) {
-        this.last_update = last_update;
-    }
-
-
-    public boolean equalsProduct(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Product)) return false;
-        Product product = (Product) o;
-        return product_nummer == product.product_nummer &&
-                Double.compare(product.prijs, prijs) == 0 &&
-                Objects.equals(naam, product.naam) &&
-                Objects.equals(beschrijving, product.beschrijving);
-    }
-
-    public boolean equalsOvProduct(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Product)) return false;
-        Product product = (Product) o;
-        return product_nummer == product.product_nummer &&
-                Double.compare(product.prijs, prijs) == 0 &&
-                Objects.equals(naam, product.naam) &&
-                Objects.equals(beschrijving, product.beschrijving) &&
-                Objects.equals(status, product.status) &&
-                Objects.equals(last_update, product.last_update);
-    }
-
     @Override
-    public int hashCode() {
-        return Objects.hash(product_nummer, naam, beschrijving, prijs);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product)) return false;
+        Product product = (Product) o;
+        return product_nummer == product.product_nummer &&
+                Double.compare(product.prijs, prijs) == 0 &&
+                naam.equals(product.naam) &&
+                beschrijving.equals(product.beschrijving);
     }
 
     @Override
@@ -109,6 +85,7 @@ public class Product {
         return  "product: nummer = " + product_nummer +
                 ", naam = '" + naam + '\'' +
                 ", beschrijving = '" + beschrijving + '\'' +
-                ", prijs = " + prijs;
+                ", prijs = " + prijs +
+                "\nOvKaarten: " + ovkaarten;
     }
 }
