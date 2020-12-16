@@ -16,15 +16,17 @@ import java.util.List;
 public class OVChipkaartDAOPsql implements OVChipkaartDAO {
     private Connection conn;
     private ReizigerDAO rdao;
+    private ProductDAO pdao;
 
 
     public OVChipkaartDAOPsql(Connection conn){
         this.conn = conn;
     }
 
-    public OVChipkaartDAOPsql(Connection conn, ReizigerDAO rdao) {
+    public OVChipkaartDAOPsql(Connection conn, ReizigerDAO rdao, ProductDAO pdao) {
         this.conn = conn;
         this.rdao = rdao;
+        this.pdao = pdao;
     }
 
     public boolean save(OVChipkaart kaart) {
@@ -164,7 +166,9 @@ public class OVChipkaartDAOPsql implements OVChipkaartDAO {
         try{
             // mstel de query samen
             String Query = "SELECT * FROM " +
-                    "ov_chipkaart " +
+                    "ov_chipkaart ov " +
+                    "LEFT JOIN ov_chipkaart_product ovp ON ov.kaart_nummer = ovp.kaart_nummer " +
+                    "LEFT JOIN product p ON ovp.product_nummer = p.product_nummer " +
                     "WHERE " +
                     "reiziger_id = ? ";
 
@@ -189,10 +193,24 @@ public class OVChipkaartDAOPsql implements OVChipkaartDAO {
                 cal.setTime(geldig_tot);
                 OVChipkaart ovkaart = new OVChipkaart(kaartnummer, cal, klasse, saldo);
 
+                int productnummer = rs.getInt("product_nummer");
+                String naam = rs.getString("naam");
+                String beschrijving = rs.getString("beschrijving");
+                double prijs = rs.getDouble("prijs");
+
                 if(rdao != null){
                     ovkaart.setReiziger(rdao.findById(reiziger_id));
                 }
-                resultaat.add(ovkaart);
+                if(resultaat.contains(ovkaart)){
+                    if(productnummer != 0){
+                        resultaat.get(resultaat.indexOf(ovkaart)).addProduct(new Product(productnummer, naam, beschrijving, prijs));
+                    }
+                }else{
+                    if(productnummer != 0){
+                        ovkaart.addProduct(new Product(productnummer, naam, beschrijving, prijs));
+                        resultaat.add(ovkaart);
+                    }
+                }
             }
 
             // sluit alles netjes af

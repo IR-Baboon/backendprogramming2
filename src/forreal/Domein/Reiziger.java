@@ -28,11 +28,11 @@ public class Reiziger {
         return ovkaarten;
     }
 
-    public void addCard(OVChipkaart ovkaart){
-        this.ovkaarten.add(ovkaart);
+    public boolean addCard(OVChipkaart ovkaart){
+        return this.ovkaarten.add(ovkaart);
     };
-    public void removeCard(OVChipkaart ovkaart){
-        this.ovkaarten.remove(ovkaart);
+    public boolean removeCard(OVChipkaart ovkaart){
+        return this.ovkaarten.remove(ovkaart);
     };
 
     public Adres getAdres() {

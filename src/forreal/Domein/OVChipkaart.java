@@ -24,11 +24,11 @@ public class OVChipkaart {
     public List<Product> getProducten() {
         return producten;
     }
-    public void addProduct(Product product) {
-        producten.add(product);
+    public boolean addProduct(Product product) {
+        return producten.add(product);
     }
-    public void removeProduct(Product product) {
-        producten.removeIf(product1 -> product1.getProduct_nummer() == product.getProduct_nummer());
+    public boolean removeProduct(Product product) {
+       return producten.removeIf(product1 -> product1.getProduct_nummer() == product.getProduct_nummer());
     }
 
     public boolean contains(Product product){

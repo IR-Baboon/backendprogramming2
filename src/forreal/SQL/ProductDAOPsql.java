@@ -182,8 +182,17 @@ public class ProductDAOPsql implements ProductDAO {
 
                 String beschrijving = rs.getString("beschrijving");
                 Product product = new Product(productnummer, naam, beschrijving, prijs);
+                if(resultaat.contains(product)){
+                    if(kaartnummer != 0){
+                        resultaat.get(resultaat.indexOf(product)).addOvkaart(kaartnummer);
+                    }
+                }else{
+                    if(productnummer != 0){
+                        product.addOvkaart(kaartnummer);
+                    }
+                    resultaat.add(product);
+                }
 
-                resultaat.add(product);
             }
 
             // sluit alles netjes af

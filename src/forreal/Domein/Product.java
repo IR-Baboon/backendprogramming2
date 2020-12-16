@@ -21,11 +21,11 @@ public class Product {
     public List<Integer> getOvkaarten() {
         return ovkaarten;
     }
-    public void addOvkaart(int ovChipkaart) {
-        ovkaarten.add(ovChipkaart);
+    public boolean addOvkaart(int ovChipkaart) {
+        return ovkaarten.add(ovChipkaart);
     }
-    public void removeOvkaart(int ovChipkaart) {
-        ovkaarten.removeIf(ovChipkaart1 -> ovChipkaart1 == ovChipkaart);
+    public boolean removeOvkaart(int ovChipkaart) {
+        return ovkaarten.removeIf(ovChipkaart1 -> ovChipkaart1 == ovChipkaart);
     }
 
     public boolean contains(int ovkaart){

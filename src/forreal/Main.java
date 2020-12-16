@@ -35,8 +35,8 @@ public class Main {
 //             maak het DAO object en voeg de connectie toe
             ReizigerDAOPsql rdaop = new ReizigerDAOPsql(conn);
             AdresDAOPsql adaop = new AdresDAOPsql(conn, rdaop);
-            OVChipkaartDAOPsql ovdaop = new OVChipkaartDAOPsql(conn, rdaop);
             ProductDAOPsql pdaop = new ProductDAOPsql(conn);
+            OVChipkaartDAOPsql ovdaop = new OVChipkaartDAOPsql(conn, rdaop, pdaop);
             testReizigerDAO(rdaop);
             testAdresDAO(adaop, rdaop);
             testOVChipkaartDAO(ovdaop, rdaop, pdaop);
@@ -51,7 +51,7 @@ public class Main {
 
     }
     private static Connection getConnection(String host, String db) throws SQLException {
-        String uri = "jdbc:postgresql://"+ host + "/"+ db +"?user=postgres&password=Bloempot1";
+        String uri = "jdbc:postgresql://"+ host + "/"+ db +"?user=postgres&password=postgres";
          return DriverManager.getConnection(uri);
     }
 
